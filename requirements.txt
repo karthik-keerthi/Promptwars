@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+python-multipart
+# AI/ML simulating agents
+# Note: we use mocks below in the code to ensure it runs anywhere, but normally you'd use:
+# faiss-cpu
+# sentence-transformers
+# google-cloud-storage
+# google-cloud-aiplatform
+python-dotenv
+requests

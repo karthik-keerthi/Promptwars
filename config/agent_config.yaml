@@ -1,0 +1,15 @@
+# Agent Configurations
+identification_agent:
+  confidence_threshold: 0.85
+  max_results: 5
+
+web_search_agent:
+  enabled: true
+  search_depth: "standard"
+
+registration_agent:
+  validation_required: true
+
+system:
+  environment: "development"
+  log_level: "INFO"

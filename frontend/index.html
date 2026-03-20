@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missing Persons Identity Finder</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation / Header -->
+        <header class="glass-header">
+            <div class="logo">
+                <i class="fa-solid fa-users-viewfinder"></i>
+                <span data-i18n="app_title">Identity Finder</span>
+            </div>
+            <div class="controls">
+                <select id="language-select" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                </select>
+                <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main>
+            <!-- Hero / Upload Section -->
+            <section class="hero-section" id="upload-section">
+                <h1 data-i18n="hero_title">Help Find Missing Persons</h1>
+                <p data-i18n="hero_desc" class="subtitle">Upload a photo or capture a live image to search our real-time database and live web sources.</p>
+                
+                <div class="upload-container glass-card">
+                    <div class="upload-area" id="drop-zone">
+                        <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                        <h3 data-i18n="drag_drop">Drag & drop an image here</h3>
+                        <p data-i18n="or">or</p>
+                        <div class="action-buttons">
+                            <label for="file-upload" class="btn primary-btn">
+                                <i class="fa-solid fa-image"></i> <span data-i18n="upload_btn">Upload Image</span>
+                            </label>
+                            <input id="file-upload" type="file" accept="image/*" onchange="handleFileUpload(event)" hidden>
+                            
+                            <button class="btn secondary-btn" onclick="openCamera()">
+                                <i class="fa-solid fa-camera"></i> <span data-i18n="camera_btn">Take Photo</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera Modal (Hidden initially) -->
+                <div id="camera-modal" class="modal hidden">
+                    <div class="modal-content glass-card">
+                        <span class="close" onclick="closeCamera()">&times;</span>
+                        <h3 data-i18n="capture_photo">Capture Live Photo</h3>
+                        <video id="camera-feed" autoplay playsinline></video>
+                        <button class="btn primary-btn" onclick="captureSnapshot()">
+                            <i class="fa-solid fa-camera"></i> <span data-i18n="snap_btn">Snap</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Area -->
+                <div id="preview-area" class="hidden">
+                    <h3 data-i18n="analyzing">Analyzing Image...</h3>
+                    <img id="image-preview" src="" alt="Preview">
+                    <div class="loader"></div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="results-section hidden">
+                <h2 data-i18n="results_title">Search Results</h2>
+                
+                <!-- Match Found View -->
+                <div id="match-card" class="result-card glass-card hidden">
+                    <div class="status-badge success">
+                        <i class="fa-solid fa-circle-check"></i> <span data-i18n="match_found">Match Found</span>
+                    </div>
+                    <div class="profile-layout">
+                        <img id="match-image" src="" alt="Matched Person">
+                        <div class="profile-details">
+                            <h3 id="match-name">Name</h3>
+                            <p><strong data-i18n="reg_no">Reg No:</strong> <span id="match-reg"></span></p>
+                            <p><strong data-i18n="relation">Relation:</strong> <span id="match-rel"></span></p>
+                            <p><strong data-i18n="missing_since">Missing Since:</strong> <span id="match-date"></span></p>
+                            <p><strong data-i18n="last_seen">Last Seen:</strong> <span id="match-last"></span></p>
+                            <p><strong data-i18n="contact">Contact:</strong> <span id="match-contact"></span></p>
+                            <p><strong data-i18n="age">Age:</strong> <span id="match-age"></span></p>
+                            <p><strong data-i18n="district">District:</strong> <span id="match-district"></span></p>
+                            <div class="match-score">
+                                <span data-i18n="confidence">Confidence Score:</span> <strong id="match-confidence"></strong>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn primary-btn mt-4" onclick="resetSearch()"><span data-i18n="new_search">New Search</span></button>
+                </div>
+
+                <!-- Registration View -->
+                <div id="registration-card" class="result-card glass-card hidden">
+                    <div class="status-badge warning">
+                        <i class="fa-solid fa-magnifying-glass-minus"></i> <span data-i18n="no_match">No Match Found</span>
+                    </div>
+                    <p data-i18n="reg_prompt" class="my-3">This person is not in our database or live web sources. Please register their details.</p>
+                    <form id="registration-form" onsubmit="submitRegistration(event)">
+                        <div class="form-grid">
+                            <input type="text" id="reg-name" placeholder="Full Name (Required)" required>
+                            <input type="text" id="reg-relation" placeholder="Relation">
+                            <input type="date" id="reg-date" placeholder="Date Missing From">
+                            <input type="text" id="reg-lastseen" placeholder="Last Seen At">
+                            <input type="text" id="reg-mobile" placeholder="Contact Mobile">
+                            <input type="number" id="reg-age" placeholder="Age">
+                            <input type="text" id="reg-languages" placeholder="Languages Known">
+                            <input type="text" id="reg-district" placeholder="District">
+                        </div>
+                        <button type="submit" class="btn primary-btn w-100 mt-4"><span data-i18n="submit_reg">Register Missing Person</span></button>
+                    </form>
+                    <button class="btn text-btn mt-3" onclick="resetSearch()"><span data-i18n="cancel">Cancel</span></button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="i18n.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
