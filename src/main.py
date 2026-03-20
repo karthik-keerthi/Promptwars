@@ -1,7 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
+import os
 from src.agents.autonomous_agent import AutonomousAgent
 
 app = FastAPI(title="Missing Persons AI Agent API")
@@ -30,9 +32,7 @@ class RegistrationRequest(BaseModel):
     mental_health: str = "Normal"
     image_url: str = ""
 
-@app.get("/")
-def read_root():
-    return {"message": "Agentic AI Missing Persons API is running."}
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 @app.post("/api/search")
 async def search_person(file: UploadFile = File(...)):
