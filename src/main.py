@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -8,7 +8,6 @@ from src.agents.autonomous_agent import AutonomousAgent
 
 app = FastAPI(title="Missing Persons AI Agent API")
 
-# Setup CORS for Frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,16 +31,10 @@ class RegistrationRequest(BaseModel):
     mental_health: str = "Normal"
     image_url: str = ""
 
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
 @app.post("/api/search")
 async def search_person(file: UploadFile = File(...)):
-    # Read file bytes (in a real app, we'd pass this to Vertex AI)
     contents = await file.read()
-    
-    # Process through our Autonomous Agent
     result = agent_orchestrator.handle_search_request(file_bytes=contents)
-    
     return result
 
 @app.post("/api/register")
@@ -62,5 +55,9 @@ async def register_person(details: RegistrationRequest):
     })
     return result
 
+# IMPORTANT: Mount static files AFTER all API routes
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run("src.main:app", host="0.0.0.0", port=port, reload=True)
